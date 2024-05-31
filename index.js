@@ -33,6 +33,7 @@ app.post('/create-payment-intent', async (req, res) => {
       metadata: { name, email },
     });
 
+    
     res.json({
       clientSecret: paymentIntent.client_secret,
       publishableKey: "pk_test_TYooMQauvdEDq54NiTphI7jx",
