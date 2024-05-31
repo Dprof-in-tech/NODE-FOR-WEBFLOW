@@ -15,7 +15,7 @@ app.use(express.static('public'));
 
 // Endpoint to serve the HTML file
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public','index.html'));
+  res.sendFile(path.join(__dirname,'index.html'));
 });
 
 // Endpoint to create a payment intent
