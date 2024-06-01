@@ -73,7 +73,7 @@
     }
 
     .narrative-container .narrative{
-      width: 80%;
+      width: 72%;
       font-size: 1.5rem;
     } 
 
@@ -172,6 +172,14 @@
       font-size: 0.9rem;
       color: #666;
     }
+
+    .customer{
+      padding: 1rem;
+      border-radius: 4px;
+      width: 90%;
+      margin-top: 1rem;
+      border: 1px solid gray;
+    }
   </style>
 </head>
 
@@ -185,22 +193,20 @@
         </div>
         <div class="payment-info">
           <p>Pay Social Generation, Inc. (dba Mixtape)</p>
-          <span class="amount">
-            <h1>US</h1>
             <h1 id="payment-amount"></h1>
-          </span>
         </div>
         <div class="payment-narrative">
           <div class="narrative-container">
-            <h2 class="narrative">Mixtape for social posts (without the watermark)  --- Narrative 010</h2>
-            <h1 class="narrative-amount">US$29.00</h2>
+            <h2 class="narrative" id="narrative"> 
+            </h2>
+            <h1 class="narrative-amount" id="payment-amount"></h2>
           </div>
           <p>Ideal for creating content for social media post. Each narrative is delivered in 9:16 format with no post-production added</p>
 
           <div class="subtotal">
             <div>
               <h2>Subtotal</h2>
-              <h2>US$29.00</h2>
+                <h2 id="payment-amount" ></h2>
             </div>
             <div>
               <p>Tax</p>
@@ -209,7 +215,7 @@
           </div>
           <div class="total">
             <h2>Total due</h2>
-            <h2>US$29.00</h2>
+              <h2 id="payment-amount" ></h2>
           </div>
           <div class="remark">
             <p>Powered by Stripe</p>
@@ -225,8 +231,8 @@
       <form id="payment-form"  loading="lazy">
         <div id="payment-element"></div>
         <div class="customer-info">
-          <span id="customer-name" hidden></span>
-          <span id="payment-amount"></span>
+          <input type="email" id="email" class="customer" name="email" placeholder="xyz@gmail.com" readonly>
+          <input type="text" id="name" name="name" class="customer" placeholder="Social Generation" readonly>
         </div>
         <button id="submit">
           <div class="spinner hidden" id="spinner"></div>
@@ -245,11 +251,17 @@
       const name = urlParams.get('name');
       const email = urlParams.get('email');
       const amount = urlParams.get('amount');
+      const narrative = urlParams.get('narrative');
 
       // Display the customer name and amount
-      document.getElementById('customer-name').textContent = name;
-      document.getElementById('payment-amount').textContent = `$${amount}`;
-
+      if (amount == 327){
+        document.getElementById('narrative').textContent = `Mixtape for social posts (without the watermark) -- ${narrative}`;
+      }
+      document.getElementById('name').value = name;
+      document.getElementById('email').value = email;
+      document.querySelectorAll('#payment-amount').forEach(function(element) {
+      element.textContent = `US $${amount}`;
+    });
       // Fetch the client secret from your Node.js server
       const response = await fetch('/create-payment-intent', {
         method: 'POST',
