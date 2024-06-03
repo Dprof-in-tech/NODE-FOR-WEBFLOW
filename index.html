@@ -212,7 +212,8 @@
         const name = urlParams.get("name");
         const email = urlParams.get("email");
         const amount = urlParams.get("amount");
-        const narrative = urlParams.get("narrative");
+        const narrative = urlParams.get("narrativeID");
+        const narrativeUID = urlParams.get('narrativeUID')
 
         // Display the customer name and amount
         if (amount == 399) {
@@ -225,7 +226,7 @@
             "product"
           ).textContent = `with watermark`;
         }
-        document.getElementById("narrative").textContent = narrative;
+        document.getElementById("narrative").textContent = `${narrative} - ${narrativeUID}`;
         document.getElementById("email").value = email;
         document.getElementById("payment-amount").textContent = `$${amount}.00`;
         // Fetch the client secret from your Node.js server
