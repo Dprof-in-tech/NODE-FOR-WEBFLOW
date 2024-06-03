@@ -1,325 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="utf-8" />
-  <title>Payment Form</title>
-  <script src="https://js.stripe.com/v3/"></script>
-  <style>
-    body{
-      padding: 0;
-      margin: 0;
-    }
-    .body-container {
-      font-family: Arial, Helvetica, sans-serif;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-    }
-
-    .payment{
-      width: 35%;
-      height: 100vh;
-      padding-inline: 5rem;
-    }
-
-    .branding{
-      color:  white;
-      width: 60%;
-      background-color: black;
-      height: 100vh;
-      padding-inline: 5rem;
-    }
-    .brand-details{
-      margin-top: 1.5rem;
-      height: 85%;
-    }
-    .brand-header{
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 1rem;
-    }
-    .brand-header img{
-      border-radius: 50%;
-    }
-
-    .brand-header p{
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    .payment_info{
-      display: flex;
-      flex-direction: column;
-      justify-content: start;
-    }
-
-    .amount{
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-    }
-    .amount h1{
-      font-weight: 600;
-    }
-
-    .payment-narrative .narrative-container{
-      display: flex;
-      flex-direction: row;
-      gap: 3rem;
-      justify-content: start;
-      align-items: start;
-    }
-
-    .narrative-container .narrative{
-      width: 72%;
-      font-size: 1.5rem;
-    } 
-
-    .payment-narrative p{
-      margin-top: -1rem;
-    }
-
-    .subtotal{
-      display: flex;
-      flex-direction: column;
-      margin-top: 1rem;
-    }
-
-    .subtotal div{
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: start;
-      gap: 4rem;
-    }
-
-    .total{
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: start;
-      gap: 4rem;
-    }
-
-    .remark{
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-      margin-top: 5rem;
-      font-size: 1rem;
-    }
-
-    .remark p{
-    margin: 0;
-    }
-    a{
-      color: gray;
-    }
-    .remark span{
-      display: flex;
-      flex-direction: row;
-      gap: 1rem;
-      color: gray;
-    }
-
-
-
-    /* Add some basic styling */
-    #payment-form {
-      padding-top: 5rem;
-      width: 100%;
-      height: 85%;
-      background-color: #fff;
-    }
-
-    #submit {
-      background-color: #6772e5;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 1rem;
-      width: 100%;
-    }
-
-    .spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(0, 0, 0, 0.1);
-      border-radius: 50%;
-      border-top-color: #000;
-      animation: spin 1s infinite linear;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
+  <head>
+    <meta charset="utf-8" />
+    <title>Ugcmixtape Payment Form</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
       }
-    }
+      .body-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
 
-    .customer-info {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #666;
-    }
+      .branding {
+        width: 50%;
+        margin-left: 2rem;
+        height: 92%;
+        padding: 1rem;
+        color: black;
+        text-align: center;
+        font-size: 1.5rem;
+      } 
+      .product-name, .narrative-container{
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+        width: 100%;
+        font-size: 1rem;
+        margin-bottom: 0;
+        align-items: center;
+        height: fit-content;
+      }
 
-    .customer{
-      padding: 1rem;
-      border-radius: 4px;
-      width: 90%;
-      margin-top: 1rem;
-      border: 1px solid gray;
-    }
-  </style>
-</head>
+      .product-name :nth-child(1), .narrative-container :nth-child(1){
+        padding: 0.5rem;
+        font-weight: 700;
+        margin: 0;
+      }
 
-<body>
-  <div class="body-container">
-    <div class="branding">
-      <div class="brand-details">
-        <div class="brand-header">
-          <img src="data:image/jpeg;base64,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" alt=" sample image" height="45px" width="45px">
-          <p>Social Generation, Inc. (dba Mixtape)</p>
+      .product-name :nth-child(2), .narrative-container :nth-child(2){
+        color: #6772e5;
+        font-size: 1rem;
+      }
+      .payment {
+        width: 40%;
+        height: 92%;
+        padding: 1rem;
+        margin-right: 1rem;
+        border: 1px solid rgba(182, 181, 181, 0.555);
+        border-radius: 12px;
+      }
+      /* Add some basic styling */
+      #payment-form {
+        padding-top: 5rem;
+        width: 100%;
+        height: 85%;
+        background-color: #fff;
+      }
+
+      #submit {
+        background-color: #6772e5;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 1rem;
+        width: 100%;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #000;
+        animation: spin 1s infinite linear;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .customer-info {
+        font-size: 0.9rem;
+        color: #666;
+      }
+      .customer {
+        width: 96%;
+        padding: 10px;
+        margin-top: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        color: #6772e5;
+      }
+      .amount{
+        font-size: 2rem;
+        font-weight: 900;
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+        display: flex;
+        align-self: flex-start;
+        padding-left: 0.5rem;
+      }
+
+      /* Media queries */
+      @media only screen and (max-width: 640px) {
+        body{
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .body-container {
+          display: flex;
+          flex-direction: column;
+          height: fit-content;
+          align-items: center;
+          width: 90%;
+          justify-content: center;
+        }
+        .payment {
+          display: flex;
+          flex-direction: column;
+          width: 90%;
+          height: fit-content;
+          margin: 0;
+        }
+
+        #payment-form{
+          padding-top: 0;
+        }
+        .branding .logo{
+          width: 2rem;
+          margin-left: -5rem;
+        }
+        .branding {
+        width: 90%;
+        height: fit-content;
+        margin: 0;
+      } 
+      .product-name :nth-child(1), .narrative-container :nth-child(1){
+        padding: 0;
+        margin: 0;
+      }
+      .product-name, .narrative-container{
+        margin-top: -0.5rem;
+      }
+      .amount{
+        padding-left: 0;
+      }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="body-container">
+      <div class="branding">
+      <div class="logo">
+        <img src="ugcmixtape.svg" alt="logo" >
+      </div>
+        <div class="product-name">
+          <p>Stripe Product Name  |</p>
+          <p id="product"></p>
         </div>
-        <div class="payment-info">
-          <p>Pay Social Generation, Inc. (dba Mixtape)</p>
-            <h1 id="payment-amount"></h1>
+        <div class="narrative-container">
+          <p>Narrative Name  |</p>
+          <p id="narrative"></p>
         </div>
-        <div class="payment-narrative">
-          <div class="narrative-container">
-            <h2 class="narrative" id="narrative"> 
-            </h2>
-            <h1 class="narrative-amount" id="payment-amount"></h2>
+        <h1 class="amount" id="payment-amount"></h1>
+      </div>
+      <div class="payment">
+        <form id="payment-form" loading="lazy">
+          <div class="customer-info">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              class="customer"
+              name="email"
+              placeholder="xyz@gmail.com"
+              readonly
+            />
           </div>
-          <p>Ideal for creating content for social media post. Each narrative is delivered in 9:16 format with no post-production added</p>
+          <div id="payment-element"></div>
 
-          <div class="subtotal">
-            <div>
-              <h2>Subtotal</h2>
-                <h2 id="payment-amount" ></h2>
-            </div>
-            <div>
-              <p>Tax</p>
-              <p>Enter address to calculate</p>
-            </div>
-          </div>
-          <div class="total">
-            <h2>Total due</h2>
-              <h2 id="payment-amount" ></h2>
-          </div>
-          <div class="remark">
-            <p>Powered by Stripe</p>
-            <span>
-              <a href="">Terms</a>
-              <a href="">Privacy</a>
-            </span>
-          </div>
-        </div>
+          <button id="submit">
+            <div class="spinner hidden" id="spinner"></div>
+            <span id="button-text">Pay now</span>
+          </button>
+          <div id="payment-message" class="hidden"></div>
+        </form>
       </div>
     </div>
-    <div class="payment">
-      <form id="payment-form"  loading="lazy">
-        <div id="payment-element"></div>
-        <div class="customer-info">
-          <input type="email" id="email" class="customer" name="email" placeholder="xyz@gmail.com" readonly>
-          <input type="text" id="name" name="name" class="customer" placeholder="Social Generation" readonly>
-        </div>
-        <button id="submit">
-          <div class="spinner hidden" id="spinner"></div>
-          <span id="button-text">Pay now</span>
-        </button>
-        <div id="payment-message" class="hidden"></div>
-      </form>
-    </div>
-  </div>
 
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        // Get the query parameters from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const name = urlParams.get("name");
+        const email = urlParams.get("email");
+        const amount = urlParams.get("amount");
+        const narrative = urlParams.get("narrative");
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      // Get the query parameters from the URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const name = urlParams.get('name');
-      const email = urlParams.get('email');
-      const amount = urlParams.get('amount');
-      const narrative = urlParams.get('narrative');
-
-      // Display the customer name and amount
-      if (amount == 327){
-        document.getElementById('narrative').textContent = `Mixtape for social posts (without the watermark) -- ${narrative}`;
-      }
-      document.getElementById('name').value = name;
-      document.getElementById('email').value = email;
-      document.querySelectorAll('#payment-amount').forEach(function(element) {
-      element.textContent = `US $${amount}`;
-    });
-      // Fetch the client secret from your Node.js server
-      const response = await fetch('/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, amount }),
-      });
-      const data = await response.json();
-      console.log(data)
-
-      if (response.ok) {
-        const { clientSecret, publishableKey } = data;
-
-        // Initialize Stripe with the publishable key
-        const stripe = Stripe(publishableKey);
-
-        // Initialize Stripe Elements with the client secret
-        const elements = stripe.elements({ clientSecret });
-        const paymentElement = elements.create('payment');
-        paymentElement.mount('#payment-element');
-
-        // Handle form submission
-        const form = document.getElementById('payment-form');
-        form.addEventListener('submit', async (event) => {
-          event.preventDefault();
-
-          // Disable the form and display a spinner
-          const button = document.querySelector('#submit');
-          button.disabled = true;
-          button.querySelector('.spinner').classList.remove('hidden');
-          button.querySelector('#button-text').classList.add('hidden');
-
-          // Confirm the payment with Stripe
-          const { error } = await stripe.confirmPayment({
-            elements,
-            confirmParams: {
-              return_url: 'http://localhost:3000/success',
-            },
-          });
-
-          if (error) {
-            // Show the error message
-            const messageContainer = document.querySelector('#payment-message');
-            messageContainer.textContent = error.message;
-            messageContainer.classList.remove('hidden');
-
-            // Re-enable the form and hide the spinner
-            button.disabled = false;
-            button.querySelector('.spinner').classList.add('hidden');
-            button.querySelector('#button-text').classList.remove('hidden');
-          }
+        // Display the customer name and amount
+        if (amount == 327) {
+          document.getElementById(
+            "narrative"
+          ).textContent = `${narrative}`;
+        }
+        document.getElementById("email").value = email;
+        document.getElementById("payment-amount").textContent = `$${amount}.00`;
+        // Fetch the client secret from your Node.js server
+        const response = await fetch("/create-payment-intent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, email, amount }),
         });
-      } else {
-        console.error('Error:', data.error);
-      }
-    });
-  </script>
-</body>
+        const data = await response.json();
+        console.log(data);
 
+        if (response.ok) {
+          const { clientSecret, publishableKey } = data;
+
+          // Initialize Stripe with the publishable key
+          const stripe = Stripe(publishableKey);
+
+          // Initialize Stripe Elements with the client secret
+          const elements = stripe.elements({ clientSecret });
+          const paymentElement = elements.create("payment");
+          paymentElement.mount("#payment-element");
+
+          // Handle form submission
+          const form = document.getElementById("payment-form");
+          form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            // Disable the form and display a spinner
+            const button = document.querySelector("#submit");
+            button.disabled = true;
+            button.querySelector(".spinner").classList.remove("hidden");
+            button.querySelector("#button-text").classList.add("hidden");
+
+            // Confirm the payment with Stripe
+            const { error } = await stripe.confirmPayment({
+              elements,
+              confirmParams: {
+                return_url: "http://localhost:3000/success",
+              },
+            });
+
+            if (error) {
+              // Show the error message
+              const messageContainer =
+                document.querySelector("#payment-message");
+              messageContainer.textContent = error.message;
+              messageContainer.classList.remove("hidden");
+
+              // Re-enable the form and hide the spinner
+              button.disabled = false;
+              button.querySelector(".spinner").classList.add("hidden");
+              button.querySelector("#button-text").classList.remove("hidden");
+            }
+          });
+        } else {
+          console.error("Error:", data.error);
+        }
+      });
+    </script>
+  </body>
 </html>
