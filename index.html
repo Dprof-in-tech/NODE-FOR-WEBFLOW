@@ -215,10 +215,15 @@
         const narrative = urlParams.get("narrative");
 
         // Display the customer name and amount
-        if (amount == 327) {
+        if (amount == 399) {
           document.getElementById(
-            "narrative"
-          ).textContent = `${narrative}`;
+            "product"
+          ).textContent = `without watermark`;
+        }
+        else if(amount == 29){
+          document.getElementById(
+            "product"
+          ).textContent = `with watermark`;
         }
         document.getElementById("email").value = email;
         document.getElementById("payment-amount").textContent = `$${amount}.00`;
