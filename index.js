@@ -10,7 +10,7 @@ const stripe = require('stripe')(process.env.STRIPE_KEY);
 const YOUR_DOMAIN = 'https://payment.ugcmixtape.com';
 
 // Middleware to parse JSON bodies
-// app.use(express.json());
+app.use(express.json());
 app.use(cors());
 
 
@@ -21,7 +21,6 @@ app.use(express.static('public'));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname,'index.html'));
 });
-app.use(bodyParser.json());
 
 // Endpoint to create a payment intent
 app.post('/create-payment-intent', async (req, res) => {
@@ -54,17 +53,26 @@ app.get('/success', (req, res) => {
   res.send('Payment successful!');
 });
 
-app.use(bodyParser.raw({ type: 'application/json' }));
 
-app.post('/webhook', async (request, response) => {
+app.post('/webhook', express.raw({type: 'application/json'}),  async (request, response) => {
   const sig = request.headers['stripe-signature'];
-  let event;
-
-  try {
-    event = stripe.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  } catch (err) {
-    console.error(`Webhook Error: ${err.message}`);
-    return response.status(400).send(`Webhook Error: ${err.message}`);
+  
+  let event = request.body;
+  // Only verify the event if you have an endpoint secret defined.
+  // Otherwise use the basic event deserialized with JSON.parse
+  if (endpointSecret) {
+    // Get the signature sent by Stripe
+    const signature = request.headers['stripe-signature'];
+    try {
+      event = stripe.webhooks.constructEvent(
+        request.body,
+        signature,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.log(`⚠️  Webhook signature verification failed.`, err.message);
+      return response.sendStatus(400);
+    }
   }
 
   switch (event.type) {
