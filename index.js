@@ -21,6 +21,7 @@ app.use(express.static('public'));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname,'index.html'));
 });
+app.use(bodyParser.json());
 
 // Endpoint to create a payment intent
 app.post('/create-payment-intent', async (req, res) => {
