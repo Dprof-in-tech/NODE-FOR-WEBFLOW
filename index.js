@@ -60,6 +60,7 @@ app.post('/webhook', express.raw({type: 'application/json'}),  async (request, r
   let event = request.body;
   // Only verify the event if you have an endpoint secret defined.
   // Otherwise use the basic event deserialized with JSON.parse
+  endpointSecret = process.env.STRIPE_WEBHOOK_SECRET
   if (endpointSecret) {
     // Get the signature sent by Stripe
     const signature = request.headers['stripe-signature'];
@@ -67,7 +68,7 @@ app.post('/webhook', express.raw({type: 'application/json'}),  async (request, r
       event = stripe.webhooks.constructEvent(
         request.body,
         signature,
-        process.env.STRIPE_WEBHOOK_SECRET
+        endpointSecret
       );
     } catch (err) {
       console.log(`⚠️  Webhook signature verification failed.`, err.message);
