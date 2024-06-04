@@ -34,7 +34,6 @@ app.post('/create-payment-intent', async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
       currency: 'usd',
-      customer: email,
       metadata: { email, name },
     });
 
