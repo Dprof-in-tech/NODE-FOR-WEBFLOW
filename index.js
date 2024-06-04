@@ -10,7 +10,7 @@ const stripe = require('stripe')(process.env.STRIPE_KEY);
 const YOUR_DOMAIN = 'https://payment.ugcmixtape.com';
 
 // Middleware to parse JSON bodies
-app.use(express.json());
+// app.use(express.json());
 app.use(cors());
 
 
