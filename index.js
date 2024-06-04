@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 // Endpoint to create a payment intent
 app.post('/create-payment-intent', async (req, res) => {
   try {
-    const { email, amount } = req.body;
+    const { email, amount, name } = req.body;
 
     if (!email || !amount) {
       return res.status(400).json({ error: 'Missing required parameters' });
@@ -34,7 +34,8 @@ app.post('/create-payment-intent', async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
       currency: 'usd',
-      metadata: { email },
+      customer: email,
+      metadata: { email, name },
     });
 
     
@@ -70,7 +71,7 @@ app.post('/webhook', async (request, response) => {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object;
       const email = paymentIntent.metadata.email;
-      const amount = paymentIntent.amount / 100; // Amount in dollars
+      const amount = paymentIntent.amount;
 
       try {
         // Send an email using the Stripe email service
