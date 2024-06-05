@@ -1,4 +1,4 @@
-require("dotenv").config()
+require("dotenv").config();
 
 const express = require('express');
 const path = require('path');
@@ -10,24 +10,22 @@ const stripe = require('stripe')(process.env.STRIPE_KEY);
 const YOUR_DOMAIN = 'https://payment.ugcmixtape.com';
 
 // Middleware to parse JSON bodies
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // parse application/json
 app.use(bodyParser.json({
   verify: (req, res, buf) => {
-    req.rawBody = buf
+    req.rawBody = buf;
   }
-}))
+}));
 app.use(cors());
-
 
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
 // Endpoint to serve the HTML file
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname,'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Endpoint to create a payment intent
@@ -45,7 +43,6 @@ app.post('/create-payment-intent', async (req, res) => {
       metadata: { email, name },
     });
 
-    
     res.json({
       clientSecret: paymentIntent.client_secret,
       publishableKey: process.env.STRIPE_PUB_KEY,
@@ -61,28 +58,27 @@ app.get('/success', (req, res) => {
   res.send('Payment successful!');
 });
 
-
+const getRawBody = (req) => {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', (err) => reject(err));
+  });
+};
 
 app.post('/webhook', async (req, res) => {
-  const sig = req.headers['stripe-signature'];
-  
-  let event = req.body;
-  // Only verify the event if you have an endpoint secret defined.
-  // Otherwise use the basic event deserialized with JSON.parse
-  endpointSecret = process.env.STRIPE_WEBHOOK_SECRET
-  if (endpointSecret) {
-    // Get the signature sent by Stripe
-    const signature = req.headers['stripe-signature'];
-    try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        signature,
-        endpointSecret
-      );
-    } catch (err) {
-      console.log(`⚠️  Webhook signature verification failed.`, err.message);
-      return res.sendStatus(400);
-    }
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const rawBodyBuffer = await getRawBody(req);
+
+  const signature = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(rawBodyBuffer, signature, endpointSecret);
+  } catch (err) {
+    console.error(`Webhook signature verification failed: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   switch (event.type) {
@@ -117,9 +113,8 @@ app.post('/webhook', async (req, res) => {
 
   res.json({ received: true });
 });
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-
