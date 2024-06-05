@@ -85,7 +85,7 @@ app.post('/webhook', async (req, res) => {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object;
       const email = paymentIntent.metadata.email;
-      const amount = paymentIntent.amount;
+      const amount = paymentIntent.amount * 1000;
 
       try {
         // Send an email using the Stripe email service
